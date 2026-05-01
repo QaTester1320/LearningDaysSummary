@@ -397,11 +397,173 @@ public class CSSLocators {
                 },
                 { name: "CheckoutTest.java", code: "No other file needed for this day. website link : https://demo.nopcommerce.com/" }
             ]
-        } // <--- Ensure this closing brace is present
+        }, 
+        24: { // <--- Removed the // comment slashes here
+            title: "Selenium with XPath",
+            desc: "Learn about partial links, linktext, css selectors, locators, and lists, and set web elements. Doing the practical of XPath, XPath axes, XPath with attributes or class, or tags. Learn how to create your own XPath if the elements don't have any attributes.",
+            files: [
+                { name: "XPathDemo.java", code: `package day24;
+
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+
+
+public class XPathDemo {
+
+	public static void main(String[] args) {
+
+		WebDriver driver = new ChromeDriver();
+		driver.get("https://demo.nopcommerce.com/");
+		driver.manage().window().maximize();
+		
+		//XPath with single attribute
+		driver.findElement(By.xpath("//input[@id='small-searchterms']")).sendKeys("T-Shirts");
+		
+		driver.findElement(By.xpath("//input[@id='small-searchterms']")).clear();
+		
+		//xpath with multiple attributes
+		//input[@name='q'][@placeholder="Search store"] <--own xpath made manually 
+		driver.findElement(By.xpath("//input[@name='q'][@placeholder=\'Search store\']")).sendKeys("Shirts");
+		
+		driver.findElement(By.xpath("//input[@id='small-searchterms']")).clear();
+		
+		//xpath with 'and' operator
+		driver.findElement(By.xpath("//input[@name='q' and @placeholder='Search store']")).sendKeys("Tshirts");
+		
+		driver.findElement(By.xpath("//input[@id='small-searchterms']")).clear();
+
+		driver.findElement(By.xpath("//input[@name='q' or @placeholder='Seach store']")).sendKeys("Tshirts");
+		
+		//xpath with text() - inner text
+	//	driver.findElement(By.xpath("//*[text()='Build your own computer']")).click();
+		
+	//	driver.get("https://demo.nopcommerce.com/");
+		
+		boolean displaystatus = driver.findElement(By.xpath("//h2[text()='Featured products']")).isDisplayed();
+		System.out.println(displaystatus);
+		
+		String value = driver.findElement(By.xpath("//h2[text()='Featured products']")).getText();
+		System.out.println(value);
+		
+		//xpath with contains()
+		driver.findElement(By.xpath("//input[contains(@placeholder,'Sea')]")).sendKeys("Shirts");
+		
+		driver.findElement(By.xpath("//input[@id='small-searchterms']")).clear();
+
+		
+		//xpath with start-with()
+		driver.findElement(By.xpath("//input[starts-with(@placeholder,'Sea')]")).sendKeys("Shirts");
+
+		//chained xpath
+		boolean imagestatus = driver.findElement(By.xpath("//div[@class='header-logo']/a/img")).isDisplayed();
+		System.out.println(imagestatus);
+		
+		driver.quit();
+		
+		
+	}
+
+}
+`
+                },
+                { name: "CheckoutTest.java", code: "No other file needed for this day." }
+            ]
+        }, 
+        
+         25: { // <--- Removed the // comment slashes here
+            title: "Selenium with XPath Axes",
+            desc: "Learn about partial links, linktext, css selectors, locators, and lists, and set web elements. Doing the practical of XPath, XPath axes, XPath with attributes or class, or tags. Learn how to create your own XPath if the elements don't have any attributes.",
+            files: [
+                { name: "XPathAxesDemo.java", code: `package day25;
+
+public class XPathAxesDemo {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+	}
+
+}
+`
+                },
+                { name: "CheckoutTest.java", code: "No other file needed for this day." }
+            ]
+        }, 
+        
+         26: { // <--- Removed the // comment slashes here
+            title: "Selenium with XPath",
+            desc: "Learn about partial links, linktext, css selectors, locators, and lists, and set web elements. Doing the practical of XPath, XPath axes, XPath with attributes or class, or tags. Learn how to create your own XPath if the elements don't have any attributes.",
+            files: [
+                { name: "CSSLocators.java", code: ``
+                },
+                { name: "CheckoutTest.java", code: "No other file needed for this day. website link : https://demo.nopcommerce.com/" }
+            ]
+        }, 
+        
+        
+         27: { // <--- Removed the // comment slashes here
+            title: "Selenium with XPath",
+            desc: "Learn about partial links, linktext, css selectors, locators, and lists, and set web elements. Doing the practical of XPath, XPath axes, XPath with attributes or class, or tags. Learn how to create your own XPath if the elements don't have any attributes.",
+            files: [
+                { name: "CSSLocators.java", code: ``
+                },
+                { name: "CheckoutTest.java", code: "No other file needed for this day. website link : https://demo.nopcommerce.com/" }
+            ]
+        }, 
+        
+         28: { // <--- Removed the // comment slashes here
+            title: "Selenium with XPath",
+            desc: "Learn about partial links, linktext, css selectors, locators, and lists, and set web elements. Doing the practical of XPath, XPath axes, XPath with attributes or class, or tags. Learn how to create your own XPath if the elements don't have any attributes.",
+            files: [
+                { name: "CSSLocators.java", code: ``
+                },
+                { name: "CheckoutTest.java", code: "No other file needed for this day. website link : https://demo.nopcommerce.com/" }
+            ]
+        }, 
+        
+         29: { // <--- Removed the // comment slashes here
+            title: "Selenium with XPath",
+            desc: "Learn about partial links, linktext, css selectors, locators, and lists, and set web elements. Doing the practical of XPath, XPath axes, XPath with attributes or class, or tags. Learn how to create your own XPath if the elements don't have any attributes.",
+            files: [
+                { name: "CSSLocators.java", code: ``
+                },
+                { name: "CheckoutTest.java", code: "No other file needed for this day. website link : https://demo.nopcommerce.com/" }
+            ]
+        }, 
+        
+         30: { // <--- Removed the // comment slashes here
+            title: "Selenium with XPath",
+            desc: "Learn about partial links, linktext, css selectors, locators, and lists, and set web elements. Doing the practical of XPath, XPath axes, XPath with attributes or class, or tags. Learn how to create your own XPath if the elements don't have any attributes.",
+            files: [
+                { name: "CSSLocators.java", code: ``
+                },
+                { name: "CheckoutTest.java", code: "No other file needed for this day. website link : https://demo.nopcommerce.com/" }
+            ]
+        }, 
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
     };
+
+
+
+
+
+
 
     const dayGrid = document.getElementById('day-grid');
 
