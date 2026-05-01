@@ -492,57 +492,686 @@ public class XPathAxesDemo {
         }, 
         
          26: { // <--- Removed the // comment slashes here
-            title: "Selenium with XPath",
-            desc: "Learn about partial links, linktext, css selectors, locators, and lists, and set web elements. Doing the practical of XPath, XPath axes, XPath with attributes or class, or tags. Learn how to create your own XPath if the elements don't have any attributes.",
+            title: "WebDriver Methods",
+            desc: "Learn about browsers' methods, conditions methods, get methods and wait methods ( explicitwait, fluent wait, implicit wait methods).",
             files: [
-                { name: "CSSLocators.java", code: ``
+                { name: "BrowsersMethods.java", code: `package day26;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class BrowserMethods {
+
+	public static void main(String[] args) throws InterruptedException {
+		
+		WebDriver driver = new ChromeDriver();
+		
+		//get(url) - opens the url on the browser
+		driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+		driver.manage().window().maximize();
+		
+		Thread.sleep(3000);
+		
+		//getWindowHandles() - returns ID'S of the multiple browser window
+		driver.findElement(By.linkText("OrangeHRM, Inc")).click();
+		
+		//driver.close(); //close one window wherever driver is focused
+		driver.quit(); //close all windows
+	}
+
+}
+`
                 },
-                { name: "CheckoutTest.java", code: "No other file needed for this day. website link : https://demo.nopcommerce.com/" }
+                { name: "conditionsMethods.java", code: `package day26;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class ConditionMethods {
+
+	public static void main(String[] args) {
+		
+		WebDriver driver = new ChromeDriver();
+		
+		driver.get("https://demo.nopcommerce.com/register");
+		driver.manage().window().maximize();
+		
+		//isDisplayed()
+		WebElement logo = driver.findElement(By.xpath("//img[@alt='nopCommerce demo store']"));
+		System.out.println("displayed status of logo : " + logo.isDisplayed());
+		
+		//using boolean 
+		boolean bulvalue = driver.findElement(By.xpath("//img[@alt='nopCommerce demo store']")).isDisplayed();
+		System.out.println("display status : " + bulvalue);
+		
+		//isEnabled()
+		boolean status = driver.findElement(By.xpath("//input[@id=\"FirstName\"]")).isEnabled();
+		System.out.println("Enable status : " + status);
+		
+		//isSelcted()
+		WebElement male_rd = driver.findElement(By.xpath("//input[@id=\"gender-male\"]"));
+		WebElement female_rd = driver.findElement(By.xpath("//input[@id=\"gender-female\"]"));
+		
+		System.out.println("before selection...");
+		System.out.println(male_rd.isSelected());
+		System.out.println(female_rd.isSelected());
+		
+		System.out.println("after selection male");
+		male_rd.click();
+		System.out.println(male_rd.isSelected());
+		System.out.println(female_rd.isSelected());
+		
+		System.out.println("after selection female");
+		female_rd.click();
+		System.out.println(male_rd.isSelected());
+		System.out.println(female_rd.isSelected());
+		
+		boolean newsletterstatus = driver.findElement(By.xpath("//input[@id=\"NewsLetterSubscriptions_0__IsActive\"]")).isSelected();
+		System.out.println("news checkbox is click : " + newsletterstatus);
+		
+		
+		
+		driver.close();
+	}
+
+}
+`},
+                { name: "GetMethods.java", code: `package day26;
+
+import java.util.Set;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class GetMethods {
+
+	public static void main(String[] args) throws InterruptedException {
+		
+		WebDriver driver = new ChromeDriver();
+		
+		//get(url) - opens the url on the browser
+		driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+		
+		Thread.sleep(3000);
+		
+		//getTitle() - returns title of the page
+		System.out.println(driver.getTitle());
+
+		// getCurrentUrl() - returns current URL
+		System.out.println(driver.getCurrentUrl());
+		
+		// getPageSource() - returns source code page of the page
+		System.out.println(driver.getPageSource());
+		
+		//getWindowHandle() - returns ID od the single browser window
+		String windowid = driver.getWindowHandle();
+		System.out.println("Window ID : " + windowid);
+		
+		Thread.sleep(3000);
+		
+		//getWindowHandles() - returns ID'S of the multiple browser window
+		driver.findElement(By.linkText("OrangeHRM, Inc")).click();
+		
+		Set<String> windowIds = driver.getWindowHandles();
+		System.out.println(windowIds);
+		
+		driver.quit();
+	}
+
+}
+`}
             ]
         }, 
         
         
          27: { // <--- Removed the // comment slashes here
-            title: "Selenium with XPath",
-            desc: "Learn about partial links, linktext, css selectors, locators, and lists, and set web elements. Doing the practical of XPath, XPath axes, XPath with attributes or class, or tags. Learn how to create your own XPath if the elements don't have any attributes.",
+            title: "WebDriver Waiting methods",
+            desc: "Learn about browsers' methods, conditions methods, get methods and wait methods ( explicitwait, fluent wait, implicit wait methods).",
             files: [
-                { name: "CSSLocators.java", code: ``
+                { name: "ExplicitDemo.java", code: `package day27;
+
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class ExplicitDemo {
+
+	public static void main(String[] args) {
+		
+		WebDriver driver = new ChromeDriver();
+		WebDriverWait mywait = new WebDriverWait(driver, Duration.ofSeconds(10));
+		
+		//get(url) - opens the url on the browser
+		driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+		driver.manage().window().maximize();
+		
+		WebElement txtusername = mywait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@placeholder=\'Username\']")));
+		txtusername.sendKeys("Admin");
+		
+		WebElement txtpassword = mywait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@placeholder='Password']")));
+		txtpassword.sendKeys("Admin");
+		
+		WebElement loginbtn = mywait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[normalize-space()='Login']")));
+		loginbtn.click();
+		
+		
+		System.out.println("testing is completed...");
+		//driver.close();
+		driver.quit();
+	}
+
+}
+`
                 },
-                { name: "CheckoutTest.java", code: "No other file needed for this day. website link : https://demo.nopcommerce.com/" }
+                { name: "FluentWaitDemo.java", code: `package day27;
+
+import java.time.Duration;
+import java.util.NoSuchElementException;
+import java.util.function.Function;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
+
+public class FluentWaitDemo {
+
+	public static void main(String[] args) {
+		
+		WebDriver driver = new ChromeDriver();
+		Wait<WebDriver> mywait = new FluentWait<WebDriver>(driver)
+				.withTimeout(Duration.ofSeconds(10))
+				.pollingEvery(Duration.ofSeconds(2))
+				.ignoring(NoSuchElementException.class);
+		
+		
+		//get(url) - opens the url on the browser
+		driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+		driver.manage().window().maximize();
+		
+		
+		 WebElement txtusername = mywait.until(new Function<WebDriver, WebElement>() {
+		     public WebElement apply(WebDriver driver) {
+		       return driver.findElement(By.xpath("//input[@placeholder='Username']"));
+		       
+		     }
+		     
+		 });
+		 txtusername.sendKeys("Admin");
+		 
+		
+		System.out.println("testing is completed...");
+		//driver.close();
+		driver.quit();
+		
+		
+		
+		/*
+		 * WebDriver driver = new ChromeDriver();
+		 * Wait<WebDriver> mywait = new FluentWait<WebDriver>(driver)
+		 * .withTimeout(Duration.ofSeconds(10))
+		 * .pollingEvery(Duration.ofSeconds(2))
+		 * .ignoring(NoSuchElementException.class);
+		 * 
+		 * WebElement textusername = mywait.until(new Functiona<WebDriver, WebElement>(){
+		 *  	public WebElement apply(WebDriver driver) {
+		 *  	return driver.findElement(By.xpath("//input[@placeholder='Username']"));
+		 *  }
+		 *  });
+		 *  textusername.sendKeys("Admin");
+		 */
+	}
+
+}
+` },
+                { name: "ImplicitWaitDemo.java", code: `package day27;
+
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class ImplicitWaitDemo {
+
+	public static void main(String[] args) throws InterruptedException {
+		
+		WebDriver driver = new ChromeDriver();
+		
+		//you have to write this implicit method only one time after the drive called
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5)); 
+		
+		//get(url) - opens the url on the browser
+		driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+		driver.manage().window().maximize();
+		
+		//Thread.sleep(5000); //pause the execution--not require now
+	
+		driver.findElement(By.xpath("//input[@placeholder=\"Username\"]")).sendKeys("Admin");
+		
+		driver.close();
+	}
+
+}
+` },
+                { name: "SleepCommand.java", code: `package day27;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class SleepCommand {
+
+	public static void main(String[] args) throws InterruptedException {
+		
+		WebDriver driver = new ChromeDriver();
+		
+		//get(url) - opens the url on the browser
+		driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+		driver.manage().window().maximize();
+		
+		Thread.sleep(5000); //pause the execution
+		
+		driver.findElement(By.xpath("//input[@placeholder=\"Username\"]")).sendKeys("Admin");
+		
+		
+	}
+
+}
+` }
             ]
         }, 
         
          28: { // <--- Removed the // comment slashes here
-            title: "Selenium with XPath",
-            desc: "Learn about partial links, linktext, css selectors, locators, and lists, and set web elements. Doing the practical of XPath, XPath axes, XPath with attributes or class, or tags. Learn how to create your own XPath if the elements don't have any attributes.",
+            title: "Selenium with Browser and Navigation Commands",
+            desc: "Learn about navigation commands.",
             files: [
-                { name: "CSSLocators.java", code: ``
+                { name: "ClosingSpecificBrowserWindow.java", code: `package day28;
+
+import java.time.Duration;
+import java.util.Set;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class ClosingSpecificBrowserWindow {
+
+	public static void main(String[] args) throws InterruptedException {
+
+WebDriver driver = new ChromeDriver();
+		
+		//you have to write this implicit method only one time after the drive called
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5)); 
+		
+		//get(url) - opens the url on the browser
+		driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+		driver.manage().window().maximize();
+		
+		driver.findElement(By.xpath("//a[normalize-space()='OrangeHRM, Inc']")).click();
+		
+		Set<String> windowIDs = driver.getWindowHandles();
+		
+		//all window ids are in string format thats why we use string here
+		for(String windID : windowIDs) {
+			String title = driver.switchTo().window(windID).getTitle();
+			
+			System.out.println(title);
+			Thread.sleep(2000);
+			
+			if(title.equals("Human Resources Management Software | HRMS | OrangeHRM") || title.equals("some other title")) {
+				driver.close();
+				//break;
+			}
+		}
+	}
+
+}
+`
                 },
-                { name: "CheckoutTest.java", code: "No other file needed for this day. website link : https://demo.nopcommerce.com/" }
+                { name: "HandleBrowserWindows.java", code: `package day28;
+
+import java.time.Duration;
+//import java.util.ArrayList;
+//import java.util.List;
+import java.util.Set;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class HandleBrowserWindows {
+
+	public static void main(String[] args) throws InterruptedException {
+		
+		WebDriver driver = new ChromeDriver();
+		
+		//you have to write this implicit method only one time after the drive called
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5)); 
+		
+		//get(url) - opens the url on the browser
+		driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+		driver.manage().window().maximize();
+		
+		driver.findElement(By.xpath("//a[normalize-space()='OrangeHRM, Inc']")).click();
+		
+		Set<String> windowIDs = driver.getWindowHandles();
+		
+		//approach 1
+	/*	List<String> windowList = new ArrayList(windowIDs);
+		
+		String parentID = windowList.get(0);
+		String childID = windowList.get(1);
+		
+		driver.switchTo().window(childID);
+		Thread.sleep(2000); 
+		System.out.println(driver.getTitle());
+		
+		driver.switchTo().window(parentID);
+		Thread.sleep(2000); 
+		System.out.println(driver.getTitle());
+		
+		driver.quit(); */
+		
+		for(String winID:windowIDs) {
+			String title = driver.switchTo().window(winID).getTitle();
+			
+			if(title.equals("OrangeHRM")) {
+				System.out.println(driver.getCurrentUrl());
+			}
+		}
+		
+		
+	}
+
+}
+` },
+                { name: "NavigationalCommands.java", code: `package day28;
+
+//import java.net.URL;
+import java.net.MalformedURLException;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class NavigationalCommands {
+
+	public static void main(String[] args) throws MalformedURLException {
+		
+		WebDriver driver = new ChromeDriver();
+		
+		//driver.get("https://demo.nopcommerce.com/"); <--url its only pass in string format
+		//driver.navigate().to("https://demo.nopcommerce.com/"); // we can pass through string and url object
+		
+	//	URL myurl = new URL("https://demo.nopcommerce.com/");
+	//	driver.navigate().to(myurl);
+		
+		driver.navigate().to("https://demo.nopcommerce.com/");
+		driver.navigate().to("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+		
+		driver.navigate().back();
+		System.out.println(driver.getCurrentUrl());
+		
+		driver.navigate().forward();
+		System.out.println(driver.getCurrentUrl());
+		
+		driver.navigate().refresh();
+		
+		System.out.println("testing is completed...");
+		driver.close();
+
+	}
+
+}
+` }
             ]
         }, 
         
          29: { // <--- Removed the // comment slashes here
-            title: "Selenium with XPath",
-            desc: "Learn about partial links, linktext, css selectors, locators, and lists, and set web elements. Doing the practical of XPath, XPath axes, XPath with attributes or class, or tags. Learn how to create your own XPath if the elements don't have any attributes.",
+            title: "Selenium with Handling Checkbox and Diff. types of alerts",
+            desc: "Learn about alerts with implicit and explicit wait methods, prompt alerts, authenticate alerts, pop-up alerts, iFrames, and navigation commands.",
             files: [
-                { name: "CSSLocators.java", code: ``
+                { name: "HandleAlerts.java", code: `package day29;
+
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class HandleAlerts {
+
+	public static void main(String[] args) throws InterruptedException {
+		
+		WebDriver driver = new ChromeDriver();
+		
+		driver.get("https://the-internet.herokuapp.com/javascript_alerts");
+		driver.manage().window().maximize();
+
+		//normal alert with OK button
+		driver.findElement(By.xpath("//button[normalize-space()='Click for JS Alert']")).click();
+		
+		Alert myalert = driver.switchTo().alert();
+		System.out.println(myalert.getText());
+		myalert.accept();
+		Thread.sleep(5000);
+		//confirmation alert -ok and cancel
+		driver.findElement(By.xpath("//button[normalize-space()='Click for JS Confirm']")).click();
+		//Thread.sleep(5000);
+		
+		//driver.switchTo().alert().accept(); //close alert using accept
+		driver.switchTo().alert().dismiss(); //close alert using dismiss
+		
+		Thread.sleep(5000);
+		
+		//prompt alert -> input and ok and cancel
+		driver.findElement(By.xpath("//button[normalize-space()='Click for JS Prompt']")).click();
+		Alert MyAlert = driver.switchTo().alert();
+		MyAlert.sendKeys("Welcome");
+		MyAlert.accept();
+	}
+
+}
+`
                 },
-                { name: "CheckoutTest.java", code: "No other file needed for this day. website link : https://demo.nopcommerce.com/" }
+                { name: "HandleAlertUsingExplicitWait.java", code: `package day29;
+
+import java.time.Duration;
+
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class HandleAlertUsingExplicitWait {
+
+	public static void main(String[] args) throws InterruptedException {
+		
+		WebDriver driver = new ChromeDriver();
+		WebDriverWait mywait =  new WebDriverWait (driver, Duration.ofSeconds(10)); //explicit wait
+		driver.get("https://the-internet.herokuapp.com/javascript_alerts");
+		driver.manage().window().maximize();
+
+		driver.findElement(By.xpath("//button[normalize-space()='Click for JS Alert']")).click();
+		
+		Alert myalert = mywait.until(ExpectedConditions.alertIsPresent());
+		
+		System.out.println(myalert.getText());
+		myalert.accept();
+		Thread.sleep(5000);
+	}
+
+}
+` },
+                { name: "HandleAuthenticatedPopUp.java", code: `package day29;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class HandleAuthenticatedPopUp {
+
+	public static void main(String[] args) {
+		
+		WebDriver driver = new ChromeDriver();
+		
+		//we are passing username and password through URL / sql injection
+		driver.get("https://admin:admin@the-internet.herokuapp.com/basic_auth"); 
+		driver.manage().window().maximize();
+		
+		
+	}
+
+}
+` },
+                { name: "HandleCheckboxes.java", code: `package day29;
+
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class HandleCheckboxes {
+
+	public static void main(String[] args) throws InterruptedException {
+		
+		WebDriver driver = new ChromeDriver();
+		
+		driver.get("https://testautomationpractice.blogspot.com/");
+		driver.manage().window().maximize();
+		
+		// 1.) select specific checkbox
+	//	driver.findElement(By.xpath("//input[@id='sunday']")).click();
+		
+		//2.) select all checkbox
+		List<WebElement> checkboxes = driver.findElements(By.xpath("//input[@class='form-check-input' and @type='checkbox']"));
+		
+		//for(int i = 0 ; i<checkboxes.size() ; i++) {
+		//	checkboxes.get(i).click();
+		//}
+		
+	//	for (WebElement checkbox : checkboxes) {
+	//		checkbox.click();
+	//	}
+		
+		//3.) select last 3 checkboxes 
+	//	for ( int i = 4 ; i<checkboxes.size(); i++) {
+	//		checkboxes.get(i).click();
+	//	}
+		
+		//4.) select first 3 checkboxes
+	//	for(int i=0; i<=2; i++) {
+	//		checkboxes.get(i).click();
+	//	}
+		
+		//5.)unselect checkbox only selected
+		for(int i=0; i<=2; i++) {
+			checkboxes.get(i).click();
+			}
+		
+		Thread.sleep(2000);
+		
+		for(int i=0; i<checkboxes.size(); i++) {
+			if(checkboxes.get(i).isSelected()) {
+			checkboxes.get(i).click();
+			}
+		}
+	}
+
+}
+` }
             ]
         }, 
         
          30: { // <--- Removed the // comment slashes here
-            title: "Selenium with XPath",
-            desc: "Learn about partial links, linktext, css selectors, locators, and lists, and set web elements. Doing the practical of XPath, XPath axes, XPath with attributes or class, or tags. Learn how to create your own XPath if the elements don't have any attributes.",
+            title: "Selenium with Handling iFrames & Nested iFrames",
+            desc: "Learn about iFrames and frames. Learn to use the JavaScript executor to find the element inside the iframe.",
             files: [
-                { name: "CSSLocators.java", code: ``
-                },
-                { name: "CheckoutTest.java", code: "No other file needed for this day. website link : https://demo.nopcommerce.com/" }
+                { name: "HandleFrames.java", code: `package day30;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class HandleFrames {
+
+	public static void main(String[] args) {
+		
+		WebDriver driver = new ChromeDriver();
+		
+		//we are passing username and password through URL / sql injection
+		driver.get("https://ui.vision//demo/webtest/frames/"); 
+		driver.manage().window().maximize();
+
+		// Switch to Frame1 using XPath
+		driver.switchTo().frame(driver.findElement(By.xpath("//frame[@src='frame_1.html']")));
+
+		// Now interact with the input box inside Frame 1
+		driver.findElement(By.name("mytext1")).sendKeys("QA Rootways");
+
+		// Switch back to main page after finishing
+		driver.switchTo().defaultContent();
+		
+		//frame 2
+		
+		//switch to frame2 using xpath
+		driver.switchTo().frame(driver.findElement(By.xpath("//frame[@src='frame_2.html']")));
+		
+		//now interact with the input box inside frame 2
+		driver.findElement(By.name("mytext2")).sendKeys("Test Data");
+		
+		//switch back to main page after finishing
+		driver.switchTo().defaultContent();
+		
+		//frame 3
+		driver.switchTo().frame(driver.findElement(By.xpath("//frame[@src='frame_3.html']")));
+		
+		driver.findElement(By.name("mytext3")).sendKeys("frame 3 test data");
+		
+		driver.switchTo().frame(0);
+		
+		//driver.findElement(By.xpath("//div[@id='i6']//div[@class='AB7Lab Id5V1']")).click();
+		
+		WebElement rdbutton = driver.findElement(By.xpath("//div[@id='i6']//div[@class='AB7Lab Id5V1']"));
+		JavascriptExecutor js = (JavascriptExecutor)driver;
+		js.executeScript("arguments[0].click();", rdbutton);
+		
+		driver.switchTo().defaultContent();
+		
+		//above we using javascrip executore method, which is also using for find iframe element
+	}
+
+}
+`
+                }
             ]
         }, 
         
-        
+        31: { // <--- Removed the // comment slashes here
+            title: "Selenium with Handling iFrames & Nested iFrames",
+            desc: "Learn about iFrames and frames. Learn to use the JavaScript executor to find the element inside the iframe.",
+            files: [
+                { name: "HandleFrames.java", code: ``
+                },
+                { name: "FluentWaitDemo.java", code: `` },
+                { name: "ImplicitWaitDemo.java", code: `` },
+                { name: "SleepCommand.java", code: `` }
+            ]
+        }, 
         
         
         
