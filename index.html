@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA Automation | Day 21-46</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap');
+
+        :root {
+            --bg-matte: #0f0f0f;
+            --surface-matte: #161616;
+            --panel-matte: #1e1e1e;
+            --border-matte: #2a2a2a;
+            --accent-glow: #3d3d3d;
+            --text-silver: #c5c5c5;
+            --text-dim: #636363;
+            --text-bright: #ffffff;
+            --code-green: #a7c080;
+            --code-blue: #7fbbb3;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-matte);
+            color: var(--text-silver);
+            font-family: 'Mona Sans', sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- NAVIGATION SIDEBAR --- */
+        nav {
+            width: 320px;
+            background-color: var(--surface-matte);
+            border-right: 1px solid var(--border-matte);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .nav-header {
+            padding: 40px 30px;
+        }
+
+        .nav-header h1 {
+            font-size: 1.4rem;
+            color: var(--text-bright);
+            letter-spacing: -0.5px;
+        }
+
+        .nav-header span {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .day-grid {
+            flex: 1;
+            overflow-y: overlay;
+            padding: 0 20px 40px;
+        }
+
+        .day-card {
+            background: var(--panel-matte);
+            border: 1px solid var(--border-matte);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .day-card:hover {
+            border-color: var(--text-dim);
+            transform: translateY(-2px);
+            background: #252525;
+        }
+
+        .day-card.active {
+            border-color: var(--text-bright);
+            background: var(--accent-glow);
+        }
+
+        .day-card h3 {
+            font-size: 0.9rem;
+            color: var(--text-bright);
+            margin-bottom: 4px;
+        }
+
+        .day-card p {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        /* --- MAIN VIEWPORT --- */
+        main {
+            flex: 1;
+            padding: 50px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .content-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .explanation-section {
+            margin-bottom: 40px;
+        }
+
+        .explanation-section h2 {
+            font-size: 2.5rem;
+            color: var(--text-bright);
+            margin-bottom: 20px;
+        }
+
+        .explanation-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-matte);
+            padding: 25px;
+            border-radius: 16px;
+            line-height: 1.8;
+            font-size: 1rem;
+            color: var(--text-silver);
+        }
+
+        /* --- IDE WINDOW --- */
+        .ide-window {
+            background: var(--surface-matte);
+            border: 1px solid var(--border-matte);
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        .ide-toolbar {
+            background: #1a1a1a;
+            padding: 0 15px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border-matte);
+        }
+
+        .dots {
+            display: flex;
+            gap: 8px;
+            margin-right: 20px;
+        }
+
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border-matte); }
+
+        .file-tab-container {
+            display: flex;
+            height: 100%;
+        }
+
+        .file-tab {
+            padding: 0 20px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            cursor: pointer;
+            border-right: 1px solid var(--border-matte);
+        }
+
+        .file-tab.active {
+            background: var(--panel-matte);
+            color: var(--text-bright);
+            border-bottom: 2px solid var(--text-bright);
+        }
+
+        .code-area {
+    padding: 30px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--code-blue);
+    overflow: auto; /* Changed from overflow-x to auto for vertical scrolling */
+    white-space: pre;
+    tab-size: 4; /* Ensures Java tabs aren't too wide */
+    -moz-tab-size: 4;
+        }
+
+        /* CUSTOM SCROLLBAR */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--border-matte); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-header">
+        <span>LOGBOOK v2.0</span>
+        <h1>Testing Journey</h1>
+    </div>
+    <div class="day-grid" id="day-grid">
+        <!-- Day Cards will be injected here -->
+    </div>
+</nav>
+
+<main>
+    <div class="content-container" id="main-content">
+        <div class="explanation-section">
+            <h2 id="view-title">Initialize Workspace</h2>
+            <div class="explanation-card" id="view-desc">
+                Select a day from the left sidebar to view the technical implementation, multi-file structure, and logic behind the automation scripts.
+            </div>
+        </div>
+
+        <div class="ide-window">
+            <div class="ide-toolbar">
+                <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                <div class="file-tab-container" id="tab-row">
+                    <!-- Tabs go here -->
+                </div>
+            </div>
+            <div class="code-area" id="code-output">// Select a file to view code...</div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Data containing multiple files per day
+    const database = {
+        21: {
+            title: "Selenium With Java Introduction",
+            desc: "Starting Day 21, Learn about partial links, linktext, tag, id, class, attribute or other css selectors, locators, and list, set web elements.Install Maven dependencies manually and through the XML file.",
+            files: [
+                { name: "FirstTestClass.java", code: `package day21;
+
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.WebDriver;
+
+/*
+ * 1.) launch browser (chrome)
+ * 2.) open the url https://demo.opencart.com/
+ * 3.) validate title should be " "
+ * 4.) close browser
+ */
+
+public class FirstTestCase {
+
+	public static void main(String[] args) {
+		
+		//1.) launch browser
+		//ChromeDriver driver = new ChromeDriver();
+		
+		WebDriver driver = new ChromeDriver(); 
+		//WebDriver driver = new EdgeDriver();
+		//WebDriver driver = new FirefoxDriver();
+		
+		//2.) open the URL -> https://demo.opencart.com/
+		driver.get("https://qatester1320.github.io/TestEcommerceWebsite/website.html");
+		
+		 //3.) validate title should be " Your Store"
+		String actual_title = driver.getTitle();
+		if(actual_title.equals("QA Test Store")) {
+			System.out.println("Test passed");
+		}else {
+			System.out.println("test failed");
+		}
+		
+		//4.) close browser
+		//driver.close();
+		driver.quit();
+	}
+
+}
+` },
+                { name: "RetryAnalyzer.java", code: "no need of another file in this day ,website link :https://qatester1320.github.io/TestEcommerceWebsite/website.html" },
+                { name: "TestConfig.json", code: "no need of another file in this day" }
+            ]
+        },
+       22: {
+            title: "Selenium with Java Locators",
+            desc: "I learned about java locators like ID, name, linktext, partialLinkText, class & tag",
+            files: [
+                { name: "LocatorsDemo.java", code: `package day22;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+import java.util.*;
+
+public class LocatorsDemo {
+
+	public static void main(String[] args) {
+		
+		WebDriver driver = new ChromeDriver();
+		
+		//open demo store
+		driver.get("https://qatester1320.github.io/TestEcommerceWebsite/website.html");
+		driver.manage().window().maximize();
+		
+		//name locator
+		//driver.findElement(By.name("search-input")).sendKeys("Mug");
+		
+		//id
+		driver.findElement(By.id("search-input")).sendKeys("Mug");
+		
+		//boolean logoDisplaystatus= driver.findElement(By.id("logo")).isDisplayed();
+		//System.out.println(logoDisplaystatus);
+		
+		//linktext & partialText
+		driver.findElement(By.linkText("Categories")).click(); //linktext - we have to write full words
+		
+		driver.findElement(By.partialLinkText("All")).click(); //partial text - we can only write some letters
+		
+		//class -here my website not contain in container thats why i used cssCollector
+		//List<WebElement> headerLinks = driver.findElements(By.className("main-nav a"));
+		List<WebElement> headerLinks = driver.findElements(By.cssSelector(".main-nav a"));
+		System.out.println("total header links are/is : " + headerLinks.size());
+		
+		//tagname
+		List<WebElement> links = driver.findElements(By.tagName("a"));
+		System.out.println("total number of links in this page : " + links.size());
+		
+		//total images
+		List<WebElement> images = driver.findElements(By.tagName("img"));
+		System.out.println("total images : "+ images.size());
+		
+		System.out.println("test passed");
+		driver.quit();
+		
+		
+	}
+
+}
+` },
+                { name: "CheckoutTest.java", code: "No other file needed for this day. website link : https://qatester1320.github.io/TestEcommerceWebsite/website.html" }
+            ]
+        }, // <--- Added the missing comma here
+        23: { // <--- Removed the // comment slashes here
+            title: "Selenium with CSS Selectors",
+            desc: "I learned about CSS Selectors using tag, id, class, and attributes.",
+            files: [
+                { name: "CSSLocators.java", code: `package day23;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class CSSLocators {
+
+	public static void main(String[] args) {
+		
+		WebDriver driver = new ChromeDriver();
+		driver.get("https://demo.nopcommerce.com/");
+		driver.manage().window().maximize();
+		
+		//using tag id -> tag#id 
+		driver.findElement(By.cssSelector("input#small-searchterms")).sendKeys("T-Shirts");
+		
+		driver.findElement(By.cssSelector("#small-searchterms")).clear(); //clear input 
+		
+		//usinf tag -> #
+		driver.findElement(By.cssSelector("#small-searchterms")).sendKeys("T-Shirts");
+		
+		driver.findElement(By.cssSelector("#small-searchterms")).clear(); //clear input 
+		
+		//using tag and class -> tag.classname
+		driver.findElement(By.cssSelector("input.search-box-text")).sendKeys("T-Shirts");
+		
+		driver.findElement(By.cssSelector("#small-searchterms")).clear(); //clear input 
+		
+		//using tag attribute 
+		driver.findElement(By.cssSelector("input[placeholder='Search store']")).sendKeys("T-Shirts");
+		
+		driver.findElement(By.cssSelector("#small-searchterms")).clear(); //clear input 
+		
+		//using tag class and attribute -> 
+		driver.findElement(By.cssSelector("input.search-box-text[name='q']")).sendKeys("T-Shirts");
+		
+		
+		driver.quit();
+
+	}
+
+}
+` 
+                },
+                { name: "CheckoutTest.java", code: "No other file needed for this day. website link : https://demo.nopcommerce.com/" }
+            ]
+        } // <--- Ensure this closing brace is present
+        
+        
+        
+    };
+
+    const dayGrid = document.getElementById('day-grid');
+
+    // Create Navigation Cards
+    for (let i = 21; i <= 46; i++) {
+        const card = document.createElement('div');
+        card.className = 'day-card';
+        card.innerHTML = `
+            <h3>Day ${i}</h3>
+            <p>${database[i]?.title || 'System Implementation'}</p>
+        `;
+        card.onclick = () => loadDay(i, card);
+        dayGrid.appendChild(card);
+    }
+
+    function loadDay(dayId, element) {
+        // UI Updates
+        document.querySelectorAll('.day-card').forEach(c => c.classList.remove('active'));
+        element.classList.add('active');
+
+        const data = database[dayId] || {
+            title: `Progress Update: Day ${dayId}`,
+            desc: `Continuation of automation framework development focusing on scalability and robust error handling for Day ${dayId}.`,
+            files: [{ name: "Main.java", code: "// Code for Day " + dayId }]
+        };
+
+        // Update Text
+        document.getElementById('view-title').innerText = `Day ${dayId}: ${data.title}`;
+        document.getElementById('view-desc').innerText = data.desc;
+
+        // Update Tabs
+        const tabRow = document.getElementById('tab-row');
+        const codeOutput = document.getElementById('code-output');
+        tabRow.innerHTML = '';
+
+        data.files.forEach((file, index) => {
+            const tab = document.createElement('div');
+            tab.className = `file-tab ${index === 0 ? 'active' : ''}`;
+            tab.innerText = file.name;
+            tab.onclick = (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.file-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                codeOutput.innerText = file.code;
+            };
+            tabRow.appendChild(tab);
+            if(index === 0) codeOutput.innerText = file.code;
+        });
+    }
+</script>
+
+</body>
+</html>
