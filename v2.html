@@ -3024,10 +3024,252 @@ public class WritingDynamicDataExcelFile {
             title: "Selenium with Data driven testing & Working with MS-Excel Part 2",
             desc: "Learn about reading data from an Excel file and entering it on a website through automation scripting.",
             files: [
-                { name: "Assignment.java", code: ``},
-                { name: "FluentWaitDemo.java", code: `` },
-                { name: "ImplicitWaitDemo.java", code: `` },
-                { name: "SleepCommand.java", code: ` ` }
+                { name: "ExcelUtils.java", code: `package day41;
+
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class ExcelUtils {
+	
+	public static FileInputStream fi;
+	public static FileOutputStream fo;
+	public static XSSFWorkbook wb;
+	public static XSSFSheet ws;
+	public static XSSFRow row;
+	public static XSSFCell cell;
+	public static CellStyle style;
+	
+	public static int getRowCount(String xlfile, String xlsheet) throws IOException{
+		
+		fi = new FileInputStream(xlfile);
+		wb = new XSSFWorkbook(fi);
+		ws = wb.getSheet(xlsheet);
+		int rowcount = ws.getLastRowNum();
+		wb.close();
+		fi.close();
+		return rowcount;
+	}
+	
+	public static int getCellCount ( String xlfile, String xlsheet, int rownum) throws IOException {
+		
+		fi = new FileInputStream(xlfile);
+		wb = new XSSFWorkbook(fi);
+		ws = wb.getSheet(xlsheet);
+		row = ws.getRow(rownum);
+		int cellcount = row.getLastCellNum();
+		wb.close();
+		fi.close();
+		return cellcount;
+	}
+	
+	public static String getCellData(String xlfile, String xlsheet, int rownum, int colnum) throws IOException {
+		
+		fi = new FileInputStream(xlfile);
+		wb = new XSSFWorkbook(fi);
+		ws = wb.getSheet(xlsheet);
+		row = ws.getRow(rownum);
+		cell = row.getCell(colnum);
+		
+		String data;
+		try {
+			
+			//data = cell.toString();
+			DataFormatter formatter = new DataFormatter();
+			data = formatter.formatCellValue(cell); //retruns the formated value of a cell as a String regardless of the cell type.
+		}
+		catch (Exception e) {
+			data = "";
+		}
+		
+		wb.close();
+		fi.close();
+		return data;
+	}
+	
+	public static void setCellData ( String xlfile, String xlsheet, int rownum, int colnum, String data) throws IOException {
+		
+		fi = new FileInputStream(xlfile);
+		wb = new XSSFWorkbook(fi);
+		ws = wb.getSheet(xlsheet);
+		row = ws.getRow(rownum);
+		cell = row.getCell(colnum);
+		cell.setCellValue(data);
+		fo = new FileOutputStream(xlfile);
+		wb.write(fo);
+	    wb.close();
+		fi.close();
+		fo.close();
+	}
+	
+	public static void fillGreenColor (String xlfile, String xlsheet, int rownum, int colnum) throws IOException {
+		
+		fi = new FileInputStream(xlfile);
+		wb = new XSSFWorkbook(fi);
+		ws = wb.getSheet(xlsheet);
+		row = ws.getRow(rownum);
+		cell = row.getCell(colnum);
+		
+		style = wb.createCellStyle();
+		
+		style.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		
+		cell.setCellStyle(style);
+		fo = new FileOutputStream(xlfile);
+		wb.write(fo);
+		wb.close();
+		fi.close();
+		fo.close();
+	}
+	
+	public static void fillRedColor (String xlfile, String xlsheet, int rownum, int colnum) throws IOException {
+		fi = new FileInputStream(xlfile);
+		wb = new XSSFWorkbook(fi);
+		ws = wb.getSheet(xlsheet);
+		row = ws.getRow(rownum);
+		cell = row.getCell(colnum);
+		
+		style = wb.createCellStyle();
+		
+		style.setFillForegroundColor(IndexedColors.RED.getIndex());
+		style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		
+		cell.setCellStyle(style);
+		fo = new FileOutputStream(xlfile);
+		wb.write(fo);
+		wb.close();
+		fi.close();
+		fo.close();
+	}
+}
+`},
+                { name: "FDCalculator.java", code: `package day41;
+
+import java.io.IOException;
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.Select;
+
+public class FDCalculator {
+
+	public static void main(String[] args) throws IOException, InterruptedException {
+		
+		
+		WebDriver driver = new ChromeDriver();
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+		driver.get("https://qatester1320.github.io/FixDepositeCalculator/");
+		driver.manage().window().maximize();
+		
+		String filePath = System.getProperty("user.dir")+"\\testdata\\FixDepositeCalcData.xlsx";
+		
+		int rows = ExcelUtils.getRowCount(filePath, "Sheet1");
+		
+		for(int i=1;i<=rows;i++) {
+			
+			//read data from excel
+			String princ = ExcelUtils.getCellData(filePath, "Sheet1", i, 0);
+			String rateOfInterest = ExcelUtils.getCellData(filePath, "Sheet1", i, 1);
+			String per1 = ExcelUtils.getCellData(filePath, "Sheet1", i, 2);
+			String per2 = ExcelUtils.getCellData(filePath, "Sheet1", i, 3);
+			String fre = ExcelUtils.getCellData(filePath, "Sheet1", i, 4);
+			String exp_mValue = ExcelUtils.getCellData(filePath, "Sheet1", i, 5);
+			
+			//pas above data into application
+			driver.findElement(By.xpath("//input[@id='principal']")).sendKeys(princ);
+			driver.findElement(By.xpath("//input[@id='rate']")).sendKeys(rateOfInterest);
+			driver.findElement(By.xpath("//input[@id='periodValue']")).sendKeys(per1);
+			
+			Select perdrop = new Select(driver.findElement(By.xpath("//select[@id='periodUnit']")));
+			perdrop.selectByVisibleText(per2);
+			
+			Select fredrp = new Select (driver.findElement(By.xpath("//select[@id='frequency']")));
+			fredrp.selectByVisibleText(fre);	
+			
+			driver.findElement(By.xpath("//button[normalize-space()='CALCULATE']")).click();
+			
+			//validation
+			String act_mvalue = driver.findElement(By.xpath("//span[@id='res-total']")).getText();
+			act_mvalue = act_mvalue.replace("₹", "").replace(",", "");
+
+			double expected = Double.parseDouble(exp_mValue);
+			double actual = Double.parseDouble(act_mvalue);
+
+			if(expected == actual) {
+				System.out.println("Test passed...");
+				ExcelUtils.setCellData(filePath, "Sheet1", i, 7, "Passed");
+				ExcelUtils.fillGreenColor(filePath, "Sheet1", i, 7);
+			}
+			else {
+				System.out.println("Test failed...");
+				ExcelUtils.setCellData(filePath, "Sheet1", i, 7, "Failed");
+				ExcelUtils.fillRedColor(filePath, "Sheet1", i, 7);
+			}
+			Thread.sleep(3000);
+			driver.findElement(By.xpath("//button[normalize-space()='CLEAR']")).click();
+		}
+		//end of for loop
+		driver.quit();
+	}
+
+}
+` },
+                { name: "ReadingPropertiesFiles.java", code: ` package day41;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Properties;
+import java.util.Set;
+
+public class ReadingPropertiesFiles {
+
+	public static void main(String[] args) throws IOException {
+		
+		//location of properties file
+		FileInputStream file = new FileInputStream(System.getProperty("user.dir")+"\\testdata\\config.properties");
+		
+		//loading properties file
+		Properties propertiesobj = new Properties();
+		propertiesobj.load(file);
+		
+		//reading data from properties file
+		String url = propertiesobj.getProperty("appurl");
+		String email = propertiesobj.getProperty("email");
+		String pwd = propertiesobj.getProperty("password");
+		String oid = propertiesobj.getProperty("orderid");
+		String cid = propertiesobj.getProperty("customerid");
+		
+		System.out.println(url + " "+ email + " " + pwd + " " + oid + " " + cid);
+		
+		//reading all the keys from properties file
+		
+		Set<String> keys = propertiesobj.stringPropertyNames();
+		System.out.println(keys);
+		
+		Set<Object> keys2= propertiesobj.keySet();
+		System.out.println(keys2); 
+		
+		//Reading all the values from properties file
+		Collection<Object>values = propertiesobj.values();
+		System.out.println(values);
+		
+		file.close();
+	}
+
+}
+` }
             ]
         }, 
 
@@ -3035,10 +3277,98 @@ public class WritingDynamicDataExcelFile {
             title: "Selenium with TestNG Integration & Setup and @Test annotions ",
             desc: "Learn about how to create TestNG suite, class. and create testng xml file and how the test report generate according to test cases.",
             files: [
-                { name: "Assignment.java", code: ``},
-                { name: "FluentWaitDemo.java", code: `` },
-                { name: "ImplicitWaitDemo.java", code: `` },
-                { name: "SleepCommand.java", code: ` ` }
+                { name: "FirstTestCase.java", code: `package day42;
+
+import org.testng.annotations.Test;
+
+/*
+ * open app
+ * login
+ * logout
+ * */
+
+public class FirstTestCase {
+
+		@Test(priority = 1)
+		void openapp() {
+			System.out.println("opening application...");
+		}
+		
+		@Test(priority = 2)
+		void login() {
+			System.out.println("login to application...");
+		}
+		
+		@Test(priority = 3)
+		void logout() {
+			System.out.println("logout from application...");
+		}
+}
+`},
+                { name: "SweetShopTest.java", code: `package day42;
+
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.annotations.Test;
+
+/*
+ * 1.) open application
+ * 2.) test logo presebce
+ * 3.)login
+ * 4.)close
+ */
+
+
+public class SweetShopTest {
+	
+	WebDriver driver;
+	
+	@Test(priority = 1)
+	    void openapp() {
+		driver = new ChromeDriver();
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+		driver.get("https://qatester1320.github.io/admin_panel/admin.html");
+		driver.manage().window().maximize();
+		System.out.println("opening website...");
+  }
+	
+	@Test(priority = 2)
+	void testlogo() {
+		boolean logostatus = driver.findElement(By.xpath("//h1[normalize-space()='Sweetshop']")).isDisplayed();
+		System.out.println("Logo displayed ? " + logostatus);
+		System.out.println("logo is present...");
+	}
+	
+	@Test(priority = 3)
+	void testlogin() {
+		
+		driver.findElement(By.xpath("//input[@id='username']")).sendKeys("admin");
+		driver.findElement(By.xpath("//input[@id='password']")).sendKeys("admin");
+		driver.findElement(By.xpath("//button[normalize-space()='Log In']")).click();
+		System.out.println("logged in...");
+	}
+	
+	@Test(priority = 4)
+	void testlogout() {
+		driver.findElement(By.xpath("//button[normalize-space()='Logout']")).click();
+		System.out.println("logout...");
+		driver.quit();
+	}
+}
+` },
+                { name: "testng.xml", code: ` <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Suite">
+  <test thread-count="5" name="Test">
+    <classes>
+      <class name="day42.SweetShopTest"/>
+    </classes>
+  </test> <!-- Test -->
+</suite> <!-- Suite -->
+` }
             ]
         }, 
 
@@ -3046,12 +3376,353 @@ public class WritingDynamicDataExcelFile {
             title: "Selenium with TestNG annotions and Types of Assertions",
             desc: "Learn about how to create testclass, testname, testsuite, testmethod in different scenarios using TestNG, hardassertions, softassertions.",
             files: [
-                { name: "Assignment.java", code: ``},
-                { name: "FluentWaitDemo.java", code: `` },
-                { name: "ImplicitWaitDemo.java", code: `` },
-                { name: "SleepCommand.java", code: ` ` }
+                { name: "AllAnnotations.java", code: `package day43;
+
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterSuite;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
+public class AllAnnotations {
+
+	@BeforeSuite
+	void bs() {
+		System.out.println("This is BeforeSuite method...");
+	}
+	
+	@AfterSuite
+	void as() {
+		System.out.println("This is afterSuite method...");
+	}
+	
+
+	@BeforeTest
+	void bt() {
+		System.out.println("This is BeforeTest Method...");
+	}
+	
+	
+	@AfterTest
+	void at() {
+		System.out.println("This is afterTest method...");
+	}
+	
+	@BeforeClass
+	void bc() {
+		System.out.println("This is Beforeclass Method...");
+	}
+	
+	
+	@AfterClass
+	void ac() {
+		System.out.println("This is afterclass method...");
+	}
+	
+	@BeforeMethod
+	void login() {
+		System.out.println("This is Before method...");
+	}
+	
+	@AfterMethod
+	void logout() {
+		System.out.println("This is after method");
+	}
+	
+	@Test(priority=1)
+	void tm1() {
+		System.out.println("This is test method1...");
+	}
+	
+	@Test(priority=2)
+	void tm2() {
+		System.out.println("This is test method2...");
+	}
+}
+`},
+                { name: "AnnotationsDemo1.java", code: `package day43;
+
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+/*
+ * login
+ * search
+ * logout
+ * login
+ * toggle
+ * logout
+ */
+
+public class AnnotationsDemo1 {
+
+	@BeforeMethod
+	void login() {
+		System.out.println("Login...");
+	}
+	
+	@Test(priority = 1)
+	void search() {
+		System.out.println("searching...");
+	}
+
+	@Test(priority = 2)
+	void toggle() {
+		System.out.println("changed theme ");
+	}
+	
+	@AfterMethod
+	void logout() {
+		System.out.println("logout");
+	}
+}
+` },
+                { name: "AnnotationsDemo2.java", code: `package day43;
+
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+/*
+ * login
+ * search
+ * changed theme
+ * logout
+ */
+
+public class AnnotationsDemo2 {
+
+	@BeforeClass
+	void login() {
+		System.out.println("Login...");
+	}
+	
+	@Test(priority = 1)
+	void search() {
+		System.out.println("searching...");
+	}
+
+	@Test(priority = 2)
+	void toggle() {
+		System.out.println("changed theme ");
+	}
+	
+	@AfterClass
+	void logout() {
+		System.out.println("logout");
+	}
+}
+` },
+                { name: "AssertionsDemo.java", code: `package day43;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+public class AssertionsDemo {
+
+	@Test
+	void testTitle() {
+		
+		String exp_title="test";
+		String act_title="Test";
+		
+		/* if(exp_title.equals(act_title)) {
+			System.out.println("Test passed...");
+		}else {
+			System.out.println("Test failed...");
+		} */
+		
+		//Assert.assertEquals(exp_title, act_title);
+		
+		 if(exp_title.equals(act_title)) {
+		System.out.println("Test passed...");
+		Assert.assertTrue(true);
+	}else {
+		System.out.println("Test failed...");
+		Assert.assertTrue(false);
+	} 
+	}
+	
+}
+`},
+                { name: "HardAssertions.java", code: `package day43;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+public class HardAssertions {
+
+	@Test
+	void test() {
+		
+		Assert.assertEquals(123,"abc");
+		Assert.assertEquals("123","abc");
+		Assert.assertEquals("123","123");
+		Assert.assertEquals("123",123);
+		Assert.assertEquals("123",123);
+		
+		Assert.assertNotEquals(123,123); //fail
+		Assert.assertNotEquals(1234,123); //pass
+		
+		Assert.assertTrue(true); //pass
+		Assert.assertTrue(false); //fail
+		
+		Assert.assertTrue(1==2); //fail
+	//	Assert.assertTrue(1==1); //true
+		
+		Assert.assertFalse(1==2); //pass
+	//	Assert.assertFalse(1==1); //fail
+		
+		Assert.fail(); //no need any data and validation
+		
+	}
+}
+` },
+                { name: "HardVsSoftAssertions.java", code: `package day43;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
+
+public class HardVsSoftAssertions {
+	
+	@Test
+	void test_haedassertions() {
+		
+		System.out.println("testing...");
+		System.out.println("testing...");
+		
+		//Assert.assertEquals(1, 2); if we write here , then rest of their not execute in hard assertions
+		
+		System.out.println("testing...");
+		System.out.println("tseting...");
+		
+		Assert.assertEquals(1, 2); //so we should write in last
+	}
+	
+	@Test(priority=2)
+	void test_softassertions() {
+		System.out.println("testing...");
+		System.out.println("testing...");
+		
+		SoftAssert sa = new SoftAssert();
+		sa.assertEquals(1, 2); //it show pass testsuite even its false, because its soft assertions
+		
+		System.out.println("testing...");
+		System.out.println("tseting...");
+		
+		sa.assertAll(); //using this it still execute other step and show all over failed
+		
+	}
+}
+` },
+                { name: "testng.xml", code: `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Suite">
+  <test thread-count="5" name="Test">
+    <classes>
+      <class name="day43.AllAnnotations"/>
+    </classes>
+  </test> <!-- Test -->
+</suite> <!-- Suite -->
+` },
+                { name: "c1.java", code: `package day43.pack;
+
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
+public class C1 {
+
+	@Test
+	void abc() {
+		System.out.println("This is abc from C1...");
+	}
+	
+	@BeforeTest
+	void bt() {
+		System.out.println("This is BeforeTest Method...");
+	}
+}
+` },
+                { name: "C2.java", code: `package day43.pack;
+
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.Test;
+
+public class C2 {
+
+	@Test
+	void xyz() {
+		System.out.println("This is xyz from C2...");
+	}
+	
+	@AfterTest
+	void at() {
+		System.out.println("This is afterTest method...");
+	}
+}
+` },
+                { name: "C3.java", code: `package day43.pack;
+
+import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.Test;
+
+public class C3 {
+
+	@Test
+	void pqr() {
+		System.out.println("This is pqr from C3...");
+	}
+	
+	@AfterSuite
+	void as() {
+		System.out.println("This is afterSuite method...");
+	}
+	
+	@BeforeSuite
+	void bs() {
+		System.out.println("This is BeforeSuite method...");
+	}
+}
+` },
+                { name: "testng.xml", code: `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+
+<suite name="Suite">
+
+  <test thread-count="5" name="Test1">
+  
+    <classes>
+      <class name="day43.pack.C1"/>
+       <class name="day43.pack.C2"/>
+        <class name="day43.pack.C3"/>
+    </classes>
+    
+  </test> <!-- Test -->
+  
+  <test thread-count="5" name="Test2">
+  
+    <classes>
+      <class name="day43.pack.C1"/>
+      <class name="day43.pack.C2"/>
+       <class name="day43.pack.C3"/>
+    </classes>
+    
+  </test> <!-- Test -->
+  
+</suite> <!-- Suite -->
+ ` }
             ]
         }, 
+
+
 
         44: { // <--- Removed the // comment slashes here
             title: "Selenium with TestNG dependency methods and Grouping Tests",
