@@ -151,12 +151,15 @@
             display: flex;
             align-items: center;
             border-bottom: 1px solid var(--border-matte);
+            /* Prevent the toolbar itself from clipping/growing when there are many tabs */
+            overflow: hidden;
         }
 
         .dots {
             display: flex;
             gap: 8px;
             margin-right: 20px;
+            flex-shrink: 0; /* keep the dots visible, never squeezed out */
         }
 
         .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border-matte); }
@@ -164,6 +167,20 @@
         .file-tab-container {
             display: flex;
             height: 100%;
+            flex: 1 1 auto;
+            min-width: 0; /* required so flex child can actually shrink and scroll instead of overflowing */
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: thin; /* Firefox */
+        }
+
+        /* Horizontal scrollbar just for the tab row, kept slim and unobtrusive */
+        .file-tab-container::-webkit-scrollbar {
+            height: 4px;
+        }
+        .file-tab-container::-webkit-scrollbar-thumb {
+            background: var(--border-matte);
+            border-radius: 10px;
         }
 
         .file-tab {
@@ -176,6 +193,8 @@
             color: var(--text-dim);
             cursor: pointer;
             border-right: 1px solid var(--border-matte);
+            flex-shrink: 0; /* keep each tab's full name readable, never squished */
+            white-space: nowrap;
         }
 
         .file-tab.active {
