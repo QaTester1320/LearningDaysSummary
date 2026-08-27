@@ -3728,10 +3728,136 @@ public class C3 {
             title: "Selenium with TestNG dependency methods and Grouping Tests",
             desc: "Learn about how to create testclass, testname, testsuite, testmethod in different scenarios using TestNG, hardassertions, softassertions.",
             files: [
-                { name: "Assignment.java", code: ``},
-                { name: "FluentWaitDemo.java", code: `` },
-                { name: "ImplicitWaitDemo.java", code: `` },
-                { name: "SleepCommand.java", code: ` ` }
+                { name: "DependencyMethods.java", code: `package day44;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+public class DependencyMethods {
+	
+	@Test(priority=1)
+		void openapp() {
+		Assert.assertTrue(true);
+		}
+		
+	@Test(priority=2, dependsOnMethods = {"openapp"})
+		void login() {
+			Assert.assertTrue(true);
+		}
+	
+	
+	@Test(priority=3, dependsOnMethods = {"login"})
+	void search() {
+		Assert.assertTrue(true);
+	}
+	
+	@Test(priority=4, dependsOnMethods = {"login","search"})
+	void advsearch() {
+		Assert.assertTrue(true);
+	}
+	
+	@Test(priority=5, dependsOnMethods = {"login"})
+	void logout() {
+		Assert.assertTrue(true);
+	}
+	
+	
+}
+	
+
+`},
+                { name: "LoginTests.java", code: `package day44;
+
+import org.testng.annotations.Test;
+
+public class LoginTests {
+
+	@Test(priority=1, groups = {"sanity"})
+	void loginByEmail() {
+		System.out.println("This is login by email..");
+	}
+	
+	@Test(priority=2, groups = {"sanity"})
+	void loginByFacebook() {
+		System.out.println("This is login by facebook..");
+	}
+	
+	@Test(priority=3, groups = {"sanity"})
+	void loginByTwitter() {
+		System.out.println("This is login by Twitter..");
+	}
+}
+` },
+                { name: "PaymentTests.java", code: `package day44;
+
+import org.testng.annotations.Test;
+
+public class PaymentTests {
+
+	@Test(priority=1, groups = {"regression","sanity", "functional"})
+	void paymentInRupees() {
+		System.out.println("paymentInRupees.");
+	}
+	
+	@Test(priority=2, groups = {"regression","sanity", "functional"})
+	void paymentInDollar() {
+		System.out.println("paymentInDollar");
+	}
+	
+	
+}
+` },
+                { name: "SignUpTests.java", code: `package day44;
+
+import org.testng.annotations.Test;
+
+public class SignUpTests {
+
+	
+	@Test(priority=1, groups = {"regression"})
+	void signUpByEmail() {
+		System.out.println("This is signup by email..");
+	}
+	
+	@Test(priority=2, groups = {"regression"})
+	void signUpByFacebook() {
+		System.out.println("This is signUp by facebook..");
+	}
+	
+	@Test(priority=3, groups = {"regression"})
+	void signUpByTwitter() {
+		System.out.println("This is signUp by Twitter..");
+	}
+	
+}
+` },
+                { name: "testng.xml", code: ` <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+
+<suite name="GroupInSuite">
+
+  <test thread-count="5" name="GroupInTest">
+  
+    <groups>
+    	<run>
+    	
+    	<!--<include name="functional"/> -->   <!-- when you have to run only group which contain both sanity and regression-->
+    	<!-- <include name="sanity"/> -->  <!-- group name which want to run-->
+    	<!-- <exclude name="regression"/>--> <!-- group name which want to filter to not run, we can run only this ;ine too-->
+    	</run>
+    </groups>
+  
+    <classes>
+      <class name="day44.LoginTests"/>
+      <class name="day44.SignUpTests"/>
+      <class name="day44.PaymentTests"/>
+    </classes>
+    
+  </test> <!-- Test -->
+  
+</suite> <!-- Suite -->
+` }
             ]
         }, 
 
@@ -3739,10 +3865,168 @@ public class C3 {
             title: "Selenium with TestNG data providers & Parallel Testing",
             desc: "Learn about data-driven and parallel testing.",
             files: [
-                { name: "Assignment.java", code: ``},
-                { name: "FluentWaitDemo.java", code: `` },
-                { name: "ImplicitWaitDemo.java", code: `` },
-                { name: "SleepCommand.java", code: ` ` }
+                { name: "DataProviderDemo.java", code: `package day45;
+
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+public class DataProviderDemo {
+	
+	WebDriver driver;
+	
+	@BeforeClass
+	void setup() {
+		driver = new ChromeDriver();
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+		
+	}
+	
+	@Test(dataProvider="dp")
+	void testLogin(String email, String pwd) throws InterruptedException {
+		driver.get("https://tutorialsninja.com/demo/index.php?route=account/login");
+		driver.manage().window().maximize();
+		driver.findElement(By.xpath("//input[@id='input-email']")).sendKeys(email);
+		driver.findElement(By.xpath("//input[@id='input-password']")).sendKeys(pwd);
+		driver.findElement(By.xpath("//input[@value='Login']")).click();
+		//Thread.sleep(1000);
+		
+		boolean status = driver.findElement(By.xpath("//h2[normalize-space()='My Account']")).isDisplayed();
+		if(status==true) {
+			driver.findElement(By.xpath("//a[@class='list-group-item'][normalize-space()='Logout']")).click();
+			Assert.assertTrue(true);
+		}else {
+			Assert.fail();
+		}
+	}
+	
+	@AfterClass
+	void tearDown() {
+		driver.close();
+	}
+	
+	
+	@DataProvider(name="dp", indices= {0,1}) //indices for how many test case we want to execute if(0,4) write then it perform 1st and 4th only 2, also (0,3,4) can use
+	Object[][] loginData() {
+		
+		Object data[][] = { 
+								{"abc@gmail.com", "test123"},
+								{"xyz@gmail.com", "test012"},
+								{"john@gmail.com", "test@123"},
+								{"abc123abc@gmail.com", "test@123"},
+								{"qarootways@gmail.com", "Test@123"},
+								{"johncanedy@gmail.com","test"},
+							};
+		return data;
+	}
+}
+
+`},
+                { name: "ParamTest.java", code: `package day45;
+
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Parameters;
+import org.testng.annotations.Test;
+
+public class ParamTest {
+	
+	WebDriver driver;
+	
+	@Parameters({"browser"})
+	@BeforeClass
+	void setup(String br) { //we can pass multiple parameter in here and xml too
+		
+		switch(br.toLowerCase()) {
+		case "chrome" :driver = new ChromeDriver(); break;
+		case "edge" : driver = new EdgeDriver(); break;
+		case "firefox" : driver = new FirefoxDriver(); break;
+		default : System.out.println("Invalid browser"); return;
+		}
+		
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+		driver.get("https://qatester1320.github.io/admin_panel/final.html");
+		driver.manage().window().maximize();
+
+	}
+	
+	@Test(priority=1)
+		void testLogo() {
+			boolean status = driver.findElement(By.xpath("//h1[normalize-space()='Sweetshop Admin']")).isDisplayed();
+			Assert.assertEquals(status, true);
+		}
+		
+	@Test(priority=2)
+	void testTitle() {
+		Assert.assertEquals(driver.getTitle(), "Sweetshop Admin Panel - Final Integrity Build");
+	}
+	
+	@Test(priority=3)
+	void testURL() {
+		Assert.assertEquals(driver.getCurrentUrl(), "https://qatester1320.github.io/admin_panel/final.html");
+	}
+	
+	@AfterClass
+	void tearDown() {
+		driver.close();
+	}
+	
+	
+}
+` },
+                { name: "testng.xml", code: ` <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<suite thread-count="5" name="Suite" parallel="tests">
+
+  <test  name="ChromeTest"> <!-- we can use class parallel also-->
+  
+  <parameter name="browser" value="chrome"/>
+  
+    <classes>
+      <class name="day45.ParamTest"/>
+    </classes>
+    
+  </test> <!-- Test -->
+  
+  <test name="EdgeTest">
+  
+  <parameter name="browser" value="edge"/>
+  
+    <classes>
+      <class name="day45.ParamTest"/>
+    </classes>
+    
+  </test> <!-- Test -->
+  
+  <test name="FireFoxTest">
+  
+  <parameter name="browser" value="firefox"/>
+  
+    <classes>
+      <class name="day45.ParamTest"/>
+    </classes>
+    
+  </test> <!-- Test -->
+  
+  
+</suite> <!-- Suite -->
+` }
             ]
         }, 
 
@@ -3750,10 +4034,188 @@ public class C3 {
             title: "Selenium with TestNG Listeners & Extent Report Generation",
             desc: "Learn about listeners.",
             files: [
-                { name: "Assignment.java", code: ``},
-                { name: "FluentWaitDemo.java", code: `` },
-                { name: "ImplicitWaitDemo.java", code: `` },
-                { name: "SleepCommand.java", code: ` ` }
+                { name: "ExtentReportManager.java", code: `package day46;
+
+import org.testng.ITestContext;
+import org.testng.ITestListener;
+import org.testng.ITestResult;
+
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.Status;
+import com.aventstack.extentreports.reporter.ExtentSparkReporter;
+import com.aventstack.extentreports.reporter.configuration.Theme;
+
+public class ExtentReportManager implements ITestListener
+
+//ExtentReportManager==utility file
+{
+	public ExtentSparkReporter sparkReporter; // UI of the report
+	public ExtentReports extent; //populate common info on the report
+	public ExtentTest test; // creating test case entries in the report and update status of the test methods
+	
+	public void onStart(ITestContext context) 
+	{
+		sparkReporter=new ExtentSparkReporter(System.getProperty("user.dir")+ "/reports/myReport.html");//specit
+	    sparkReporter.config().setDocumentTitle("Automation Report"); // TiTle of report
+	    sparkReporter.config().setReportName("Functional Testing"); // name of the report
+	    sparkReporter.config().setTheme(Theme.STANDARD);
+	 
+	    extent=new ExtentReports();
+	    extent.attachReporter(sparkReporter);
+	 
+	    extent.setSystemInfo("Computer Name","localhost");
+		extent.setSystemInfo("Environment","QA");
+		extent.setSystemInfo("Tester Name","Dhara");
+		extent.setSystemInfo("os", "Windows10");
+		extent.setSystemInfo("Browser Name","Chrome");
+	}
+	 
+	public void onTestSuccess(ITestResult result) 
+	{
+		test = extent.createTest(result.getName()); // create a new entry in the report
+		test.log(Status.PASS, "Test case PASSED is:"+ result.getName()); // update status p/f/s
+			 
+			 
+	}
+	public void onTestFailure(ITestResult result) 
+	{
+		test = extent.createTest(result.getName());
+		test.log(Status.FAIL, "Test case FAILED is:" + result.getName());
+		test.log(Status.FAIL, "Test Case FAILED cause is: "+ result.getThrowable());
+	}		 
+	
+	public void onTestSkipped(ITestResult result) 
+	{
+		test = extent.createTest(result.getName());
+		test.log(Status.SKIP, "Test case SKIPPED is: "+ result.getName());
+	}
+	public void onFinish(ITestContext context) 
+	{
+		extent.flush();
+	}
+	 
+	 
+	
+}`},
+                { name: "MyListeners.java", code: `package day46;
+
+import org.testng.ITestContext;
+import org.testng.ITestListener;
+import org.testng.ITestResult;
+
+public class MyListeners implements ITestListener {
+	
+	public void onStart(ITestContext context) {
+	    System.out.println("OnStart Method started...");
+	  }
+	
+	 public void onTestStart(ITestResult result) {
+		 System.out.println("OnTestStart Method started...");
+		  }
+	 
+	 public void onTestSuccess(ITestResult result) {
+		 System.out.println("Test Passed...");
+		  }
+	 
+	 public void onTestFailure(ITestResult result) {
+		 System.out.println("Test Failed...");
+		  }
+	 
+	 public void onTestSkipped(ITestResult result) {
+		 System.out.println("Test Skipped...");
+		  }
+	 
+	 public void onFinish(ITestContext context) {
+		 System.out.println("Test execution is Finished...");
+		  }
+}
+` },
+                { name: "SweetShopTest.java", code: `package day46;
+
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Listeners;
+import org.testng.annotations.Test;
+
+@Listeners(day46.MyListeners.class)
+public class SweetShopTest {
+
+	WebDriver driver;
+	
+	@BeforeClass
+	void setup() throws InterruptedException {
+		driver = new ChromeDriver();
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+		driver.get("https://qatester1320.github.io/admin_panel/final.html");
+		driver.manage().window().maximize();
+		Thread.sleep(3000);
+	}
+	
+	@Test(priority=1)
+	void testLogo() {
+		boolean status = driver.findElement(By.xpath("//h1[normalize-space()='Sweetshop Admin']")).isDisplayed();
+		Assert.assertEquals(status, true);
+	}
+	
+	@Test(priority=2)
+	void testAppUrl() {
+		Assert.assertEquals(driver.getCurrentUrl(), "https://qatester1320.github.io/admin_panel/final1.html");
+	}
+	
+	@Test(priority=3, dependsOnMethods = {"testAppUrl"})
+	void testTitle() {
+		Assert.assertEquals(driver.getTitle(), "Sweetshop Admin Panel - Final Integrity Build");
+	}
+	
+	@AfterClass
+	void tearDown() {
+		driver.quit();
+	}
+}
+` },
+                 { name: "extendreport.xml", code: `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Suite">
+
+	<listeners>
+		<listener class-name="day46.ExtentReportManager"/>
+	</listeners>
+
+  <test thread-count="5" name="Test">
+  
+    <classes>
+      <class name="day46.SweetShopTest"/>
+    </classes>
+    
+  </test> <!-- Test -->
+  
+</suite> <!-- Suite -->
+` },
+                { name: "testng.xml", code: ` <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Suite">
+
+	<listeners>
+		<listener class-name="day46.MyListeners"/>
+	</listeners>
+
+  <test thread-count="5" name="Test">
+  
+    <classes>
+      <class name="day46.SweetShopTest"/>
+    </classes>
+    
+  </test> <!-- Test -->
+  
+</suite> <!-- Suite -->
+` }
             ]
         }, 
 
@@ -3761,10 +4223,137 @@ public class C3 {
             title: "Selenium with POM - Page object model pattern",
             desc: "Learn about POM and its methods for creating a hybrid framework for automation testing.",
             files: [
-                { name: "Assignment.java", code: ``},
-                { name: "FluentWaitDemo.java", code: `` },
-                { name: "ImplicitWaitDemo.java", code: `` },
-                { name: "SleepCommand.java", code: ` ` }
+                { name: "LoginPage.java", code: `package day47;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+
+public class LoginPage {
+
+	WebDriver driver;
+	
+	
+	//constructor
+	LoginPage(WebDriver driver){
+		this.driver=driver;
+	}
+	
+	
+	//locators
+	By txt_username_loc = By.xpath(("//input[@placeholder='Username']"));
+	By txt_password_loc = By.xpath("//input[@placeholder='Password']");
+	By btn_login_loc = By.xpath("//button[normalize-space()='Login']");
+	
+	//action methods
+	public void setUserName(String user) {
+		driver.findElement(txt_username_loc).sendKeys(user);;
+	}
+	
+	public void setPassword(String pwd) {
+		driver.findElement(txt_password_loc).sendKeys(pwd);;
+	}
+	
+	public void clickLogin() {
+		driver.findElement(btn_login_loc).click();
+	}
+}
+`},
+                { name: "LoginPage1.java", code: `package day47;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.How;
+import org.openqa.selenium.support.PageFactory;
+
+public class LoginPage1 {
+
+	WebDriver driver;
+	
+	
+	//constructor
+	LoginPage1(WebDriver driver){
+		this.driver=driver;
+		PageFactory.initElements(driver, this);
+	}
+	
+	
+	//locators
+	
+	//@FindBy(xpath="//input[@placeholder='Username']") or
+	
+	@FindBy(how=How.XPATH, using="//input[@placeholder='Username']") 
+	WebElement txt_username;
+	
+	@FindBy(xpath="//input[@placeholder='Password']") 
+	WebElement txt_password;
+	
+	@FindBy(xpath="//button[normalize-space()='Login']") 
+	WebElement btn_login;
+	
+	//action methods
+	
+	public void setUserName(String user) {
+		txt_username.sendKeys(user);
+	}
+	
+	public void setPassword(String pwd) {
+		txt_password.sendKeys(pwd);
+	}
+	
+	public void clickLogin() {
+		btn_login.click();
+	}
+}
+` },
+                { name: "LoginTest.java", code: `package day47;
+
+import java.time.Duration;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+public class LoginTest {
+
+	WebDriver driver;
+	
+	@BeforeClass
+	void setUp() {
+		driver = new ChromeDriver();
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+		driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+		driver.manage().window().maximize();
+	}
+	
+	@Test
+	void testLogin() {
+		LoginPage lp = new LoginPage(driver);
+		//LoginPage1 lp = new LoginPage1(driver);
+		lp.setUserName("Admin");
+		lp.setPassword("admin123");
+		lp.clickLogin();
+		
+		Assert.assertEquals(driver.getTitle(), "OrangeHRM");
+	}
+	
+	@AfterClass
+	void tearDown() {
+		driver.quit();
+	}
+}
+` },
+                { name: "testng.xml", code: ` <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Suite">
+  <test thread-count="5" name="Test">
+    <classes>
+      <class name="day47.LoginTest"/>
+    </classes>
+  </test> <!-- Test -->
+</suite> <!-- Suite -->
+` }
             ]
         }, 
 
