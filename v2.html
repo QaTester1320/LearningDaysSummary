@@ -2659,10 +2659,177 @@ public class RunTestsIncongitoMode {
             title: "Selenium with Handling Broken Elements, SVG elements & Shadow DOM",
             desc: "Learn about broken, working, skip links script, SVG elements and shadow dom elements.",
             files: [
-                { name: "Assignment.java", code: ``},
-                { name: "FluentWaitDemo.java", code: `` },
-                { name: "ImplicitWaitDemo.java", code: `` },
-                { name: "SleepCommand.java", code: ` ` }
+                { name: "BrokenLinks.java", code: `package day39;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class BrokenLinks {
+
+    public static final String GREEN = "\u001B[32m";
+    public static final String RED = "\u001B[31m";
+    public static final String YELLOW = "\u001B[38;5;208m";
+    public static final String RESET = "\u001B[0m";
+
+    public static void main(String[] args) throws IOException {
+
+        WebDriver driver = new ChromeDriver();
+        driver.get("http://www.deadlinkcity.com/");
+        driver.manage().window().maximize();
+
+        List<WebElement> links = driver.findElements(By.tagName("a"));
+
+        List<String> workingLinks = new ArrayList<>();
+        List<String> brokenLinks = new ArrayList<>();
+        List<String> skippedLinks = new ArrayList<>();
+
+        System.out.println("Total links found: " + links.size());
+        System.out.println("Checking links...\n");
+
+        for (WebElement link : links) {
+
+            String href = link.getAttribute("href");
+            String text = link.getText();
+            String html = link.getAttribute("outerHTML");
+
+            if (href == null || href.isEmpty()) {
+
+                skippedLinks.add(
+                        "TEXT: [" + text + "]\n" +
+                        "HREF: " + href + "\n" +
+                        "ELEMENT: " + html + "\n"
+                );
+                continue;
+            }
+
+            if (href.startsWith("javascript") ||
+                href.startsWith("mailto") ||
+                href.startsWith("tel")) {
+
+                skippedLinks.add(
+                        "TEXT: [" + text + "]\n" +
+                        "HREF: " + href + "\n" +
+                        "ELEMENT: " + html + "\n"
+                );
+                continue;
+            }
+
+            try {
+
+                @SuppressWarnings("deprecation")
+				URL url = new URL(href);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.connect();
+
+                if (conn.getResponseCode() >= 400) {
+                    brokenLinks.add(href + " | TEXT: " + text);
+                } else {
+                    workingLinks.add(href + " | TEXT: " + text);
+                }
+
+            } catch (Exception e) {
+                brokenLinks.add(href + " | ERROR");
+            }
+        }
+
+        System.out.println("\n========== WORKING LINKS ==========");
+        for (String link : workingLinks) {
+            System.out.println(GREEN + link + RESET);
+        }
+
+        System.out.println("\n========== BROKEN LINKS ==========");
+        for (String link : brokenLinks) {
+            System.out.println(RED + link + RESET);
+        }
+
+        System.out.println("\n========== SKIPPED LINKS ==========");
+        for (String link : skippedLinks) {
+            System.out.println(YELLOW + link + RESET);
+        }
+
+        System.out.println("\n=========== SUMMARY ===========");
+        System.out.println(GREEN + "Working Links : " + workingLinks.size() + RESET);
+        System.out.println(RED + "Broken Links  : " + brokenLinks.size() + RESET);
+        System.out.println(YELLOW + "Skipped Links : " + skippedLinks.size() + RESET);
+        System.out.println("Total Links   : " + links.size());
+
+        driver.quit();
+    }
+}`},
+                { name: "Shadowdom.java", code: `package day39;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.SearchContext;
+
+public class Shadowdom {
+
+	public static void main(String[] args) throws InterruptedException {
+		
+		WebDriver driver = new ChromeDriver();
+	
+		driver.get("https://qatester1320.github.io/ShadowDom/shdom.html");
+		driver.manage().window().maximize();
+		
+		//This Element is inside single shadow DOM.
+		SearchContext shadow = driver.findElement(By.cssSelector("#s2-h1")).getShadowRoot();
+		Thread.sleep(1000);
+		shadow.findElement(By.cssSelector("input[placeholder='Enter text...']")).sendKeys("welcome");
+		
+		
+		//This Element is inside 4 nested shadow DOM.
+		SearchContext shadow0 = driver.findElement(By.cssSelector("#s1-h4")).getShadowRoot();
+		Thread.sleep(1000);
+		SearchContext shadow1 = shadow0.findElement(By.cssSelector("main")).getShadowRoot();
+		Thread.sleep(1000);
+		SearchContext shadow2 = shadow1.findElement(By.cssSelector("section")).getShadowRoot();
+		Thread.sleep(1000);
+		SearchContext shadow3 = shadow2.findElement(By.cssSelector("article")).getShadowRoot();
+		Thread.sleep(1000);
+		System.out.println(shadow3.findElement(By.cssSelector(".target-btn")).getText());
+	}
+
+}
+` },
+                { name: "SVGElement.java", code: `package day39;
+
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class SVGElement {
+
+	public static void main(String[] args) {
+		
+		WebDriver driver = new ChromeDriver();
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+		
+		driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+		driver.manage().window().maximize();
+		
+		driver.findElement(By.xpath("//input[@placeholder='Username']")).sendKeys("Admin");
+		driver.findElement(By.xpath("//input[@placeholder='Password']")).sendKeys("admin123");
+		driver.findElement(By.xpath("//button[normalize-space()='Login']")).click();
+		
+		//driver.findElement(By.cssSelector("body > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > aside:nth-child(1) > nav:nth-child(1) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(4) > a:nth-child(1) > svg:nth-child(1)")).click();
+		driver.findElement(By.cssSelector("li:nth-child(4) svg")).click();
+		System.out.println("reached to time page...");
+		
+	}
+
+}
+ ` }
             ]
         }, 
 
@@ -2670,10 +2837,186 @@ public class RunTestsIncongitoMode {
             title: "Selenium with Data driven testing & Working with MS-Excel Part 1",
             desc: "Learn about data-driven testing with Excel files. learn about reading and writing data in an Excel file through automation scripting, ",
             files: [
-                { name: "Assignment.java", code: ``},
-                { name: "FluentWaitDemo.java", code: `` },
-                { name: "ImplicitWaitDemo.java", code: `` },
-                { name: "SleepCommand.java", code: ` ` }
+                { name: "ReadingDataFromExcel.java", code: `package day40;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+public class ReadingDataFromExcel {
+
+	//excel file --> workbook --> sheets --> rows --> cells
+	
+	public static void main(String[] args) throws IOException {
+		
+		FileInputStream file = new FileInputStream(System.getProperty("user.dir")+"\\testdata\\customergroupprices_2025-12-23 (1).xlsx");
+		
+		XSSFWorkbook workbook = new XSSFWorkbook(file);
+		
+		XSSFSheet sheet = workbook.getSheet("Sheet1");
+		//XSSFSheet sheet = workbook.getSheetAt(0); //using index
+		
+		int totalRows = sheet.getLastRowNum();
+		
+		int totalCells = sheet.getRow(1).getLastCellNum();
+		
+		System.out.println("No. of Rows : " + totalRows);
+		System.out.println("No. of Cells : " + totalCells);
+		
+		for (int r=0;r<=totalRows;r++) {
+			
+			XSSFRow currentRow = sheet.getRow(r);
+			
+			for(int c=0;c<totalCells;c++) {
+				
+				XSSFCell currentCell = currentRow.getCell(c);
+				System.out.print(currentCell.toString() + "\t");
+			}
+			System.out.println();
+		}
+		workbook.close();
+		file.close();
+	}
+
+}
+`},
+                { name: "WritingDataInSpecificRowAndCell.java", code: `package day40;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Scanner;
+
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+public class WritingDataInSpecificRowAndCell {
+
+	public static void main(String[] args) throws IOException {
+		
+		FileOutputStream file = new FileOutputStream(System.getProperty("user.dir")+"\\testdata\\myfile_dynamic.xlsx");
+
+		XSSFWorkbook workbook = new XSSFWorkbook();
+		
+		XSSFSheet sheet = workbook.createSheet("DynamicData");
+		
+		
+		XSSFRow row = sheet.createRow(3);
+		XSSFCell cell = row.createCell(4);
+		
+		cell.setCellValue("welcome");
+		
+		workbook.write(file);
+		workbook.close();
+		file.close();
+		
+		System.out.println("File is updated...");
+	}
+
+}
+` },
+                { name: "WritingDataIntoExcel.java", code: `package day40;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+public class WritingDataIntoExcel {
+
+	public static void main(String[] args) throws IOException {
+		
+		
+		XSSFWorkbook workbook = new XSSFWorkbook();
+		
+		XSSFSheet sheet = workbook.createSheet("Data");
+		
+		XSSFRow row1 = sheet.createRow(0);
+		
+		row1.createCell(0).setCellValue("Java");
+		row1.createCell(1).setCellValue(19);
+		row1.createCell(2).setCellValue("Automation");
+		
+		XSSFRow row2 = sheet.createRow(1);
+		
+		row2.createCell(0).setCellValue("Python");
+		row2.createCell(1).setCellValue(3);
+		row2.createCell(2).setCellValue("Automation");
+		
+		XSSFRow row3 = sheet.createRow(2);
+		
+		row3.createCell(0).setCellValue("C#");
+		row3.createCell(1).setCellValue(5);
+		row3.createCell(2).setCellValue("Automation");
+		
+		FileOutputStream file = new FileOutputStream(System.getProperty("user.dir")+"\\testdata\\myfile.xlsx");
+		workbook.write(file);
+		
+		workbook.close();
+		file.close();
+		System.out.println("file is created");
+		
+	}
+
+}
+` },
+                { name: "WritingDynamicDataExcelFile.java", code: ` package day40;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Scanner;
+
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+public class WritingDynamicDataExcelFile {
+
+	public static void main(String[] args) throws IOException {
+		
+		FileOutputStream file = new FileOutputStream(System.getProperty("user.dir")+"\\testdata\\myfile_dynamic.xlsx");
+
+		XSSFWorkbook workbook = new XSSFWorkbook();
+		
+		XSSFSheet sheet = workbook.createSheet("DynamicData");
+		
+		Scanner sc = new Scanner(System.in);
+		
+		System.out.println("Enter how many rows do you want to create ? : ");
+		int noOfRows = sc.nextInt();
+		
+		System.out.println("Enter how many cells do you want to create ? : ");
+		int noOfCells = sc.nextInt();
+		
+		for (int r=0;r<=noOfRows;r++) {
+			
+			XSSFRow currentRow = sheet.createRow(r);
+			
+			for(int c=0;c<noOfCells;c++) {
+				
+				XSSFCell cell = currentRow.createCell(c);
+				cell.setCellValue(sc.next());
+				
+			}
+		}
+		
+		workbook.write(file);
+		workbook.close();
+		file.close();
+		
+		System.out.println("File is created...");
+	}
+
+}
+` }
             ]
         }, 
 
